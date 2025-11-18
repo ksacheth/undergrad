@@ -161,7 +161,7 @@ export async function callGeminiJSON(prompt: string): Promise<any> {
 
 To change the model:
 ```typescript
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Change here
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" }); // Change here
 ```
 
 ## Environment Variables

@@ -1,5 +1,9 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+
 interface Question {
   id: string;
   text: string;
@@ -67,6 +71,24 @@ function getConceptStatusIcon(
   }
 }
 
+function MarkdownAnswer({ content }: { content?: string }) {
+  if (!content) {
+    return (
+      <div className="bg-white dark:bg-zinc-800 p-3 rounded border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-500 italic">
+        No answer provided.
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white dark:bg-zinc-800 p-3 rounded border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed space-y-3 overflow-x-auto">
+      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
 export default function QuestionCard({
   questionNumber,
   question,
@@ -78,7 +100,8 @@ export default function QuestionCard({
     : null;
 
   const verdictColorClass = {
-    green: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800",
+    green:
+      "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800",
     blue: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800",
     yellow:
       "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800",
@@ -108,7 +131,7 @@ export default function QuestionCard({
             </p>
           </div>
           {question.marks && (
-            <div className="flex-shrink-0 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium whitespace-nowrap">
+            <div className="shrink-0 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium whitespace-nowrap">
               {question.marks} marks
             </div>
           )}
@@ -149,14 +172,22 @@ export default function QuestionCard({
 
       {/* Evaluation Results */}
       {question.evaluation && (
-        <div className={`px-6 py-4 border-t border-zinc-200 dark:border-zinc-700 ${verdictColorClass[verdictColor!]}`}>
+        <div
+          className={`px-6 py-4 border-t border-zinc-200 dark:border-zinc-700 ${
+            verdictColorClass[verdictColor!]
+          }`}
+        >
           {/* Score and Verdict */}
           <div className="mb-4 pb-4 border-b border-zinc-300 dark:border-zinc-600">
             <div className="flex items-center justify-between gap-4 mb-2">
               <h4 className="font-semibold text-zinc-900 dark:text-white">
                 Evaluation Result
               </h4>
-              <span className={`text-2xl font-bold ${verdictTextColor[verdictColor!]}`}>
+              <span
+                className={`text-2xl font-bold ${
+                  verdictTextColor[verdictColor!]
+                }`}
+              >
                 {question.evaluation.score}/{question.evaluation.maxScore}
               </span>
             </div>
@@ -216,22 +247,18 @@ export default function QuestionCard({
           </div>
 
           {/* Answer Comparison */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <h5 className="font-semibold text-zinc-900 dark:text-white mb-2">
                 Your Answer
               </h5>
-              <div className="bg-white dark:bg-zinc-800 p-3 rounded border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed max-h-48 overflow-y-auto">
-                {question.studentAnswer}
-              </div>
+              <MarkdownAnswer content={question.studentAnswer} />
             </div>
             <div>
               <h5 className="font-semibold text-zinc-900 dark:text-white mb-2">
                 Ideal Answer
               </h5>
-              <div className="bg-white dark:bg-zinc-800 p-3 rounded border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed max-h-48 overflow-y-auto">
-                {question.evaluation.idealAnswer}
-              </div>
+              <MarkdownAnswer content={question.evaluation.idealAnswer} />
             </div>
           </div>
         </div>
