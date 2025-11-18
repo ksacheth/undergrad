@@ -1,64 +1,210 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import Header from "@/components/Header";
+import ConfigForm from "@/components/ConfigForm";
+import QuestionsList from "@/components/QuestionsList";
+
+interface Question {
+  id: string;
+  text: string;
+  marks?: number;
+  type?: string;
+}
+
+interface Evaluation {
+  score: number;
+  maxScore: number;
+  verdict: string;
+  strengths: string[];
+  weaknesses: string[];
+  idealAnswer: string;
+  conceptComparison: Array<{
+    concept: string;
+    status: "covered" | "partial" | "missing" | "wrong";
+  }>;
+}
+
+interface QuestionWithAnswer extends Question {
+  studentAnswer?: string;
+  evaluation?: Evaluation;
+  isEvaluating?: boolean;
+}
+
+interface StyleSummary {
+  commonVerbs?: string[];
+  averageMarksPerQuestion?: number;
+  typicalDifficulty?: string;
+  totalMarks?: number;
+  questionCount?: number;
+  styleNotes?: string;
+}
+
+interface ConfigData {
+  subject: string;
+  topic: string;
+  questionType: "subjective" | "numerical" | "mixed";
+  difficulty: "easy" | "medium" | "hard";
+  numQuestions: number;
+  examStyle?: string;
+  marksPattern?: string;
+  styleSummary?: StyleSummary;
+}
 
 export default function Home() {
+  const [questions, setQuestions] = useState<QuestionWithAnswer[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [configData, setConfigData] = useState<ConfigData | null>(null);
+
+  const handleGenerateQuestions = async (config: ConfigData) => {
+    setConfigData(config);
+    setIsGenerating(true);
+    setQuestions([]);
+
+    try {
+      const response = await fetch("/api/generate-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(config),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate questions");
+      }
+
+      const data = await response.json();
+      setQuestions(
+        data.questions.map((q: Question) => ({
+          ...q,
+          studentAnswer: "",
+          evaluation: undefined,
+        }))
+      );
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      alert(
+        "Failed to generate questions. Please check your API key and try again."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleAnswerChange = (questionId: string, answer: string) => {
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === questionId ? { ...q, studentAnswer: answer } : q
+      )
+    );
+  };
+
+  const handleEvaluateAnswer = async (questionId: string) => {
+    const question = questions.find((q) => q.id === questionId);
+    if (!question || !question.studentAnswer) {
+      alert("Please enter an answer before evaluating");
+      return;
+    }
+
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === questionId ? { ...q, isEvaluating: true } : q
+      )
+    );
+
+    try {
+      const response = await fetch("/api/evaluate-answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subject: configData?.subject,
+          topic: configData?.topic,
+          questionId,
+          questionText: question.text,
+          studentAnswer: question.studentAnswer,
+          difficulty: configData?.difficulty,
+          marks: question.marks,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to evaluate answer");
+      }
+
+      const evaluation = await response.json();
+      setQuestions((prev) =>
+        prev.map((q) =>
+          q.id === questionId
+            ? { ...q, evaluation, isEvaluating: false }
+            : q
+        )
+      );
+    } catch (error) {
+      console.error("Error evaluating answer:", error);
+      alert("Failed to evaluate answer. Please try again.");
+      setQuestions((prev) =>
+        prev.map((q) =>
+          q.id === questionId ? { ...q, isEvaluating: false } : q
+        )
+      );
+    }
+  };
+
+  const handleValidateAll = async () => {
+    const unansweredQuestions = questions.filter((q) => !q.studentAnswer);
+    if (unansweredQuestions.length > 0) {
+      alert("Please answer all questions before validating");
+      return;
+    }
+
+    for (const question of questions) {
+      if (!question.evaluation) {
+        await handleEvaluateAnswer(question.id);
+      }
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      <Header />
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <ConfigForm onGenerateQuestions={handleGenerateQuestions} isLoading={isGenerating} />
+
+        {isGenerating && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+
+        {questions.length > 0 && !isGenerating && (
+          <>
+            <div className="mb-6 flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">Practice Session</h2>
+              <button
+                onClick={handleValidateAll}
+                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition"
+              >
+                Validate All Answers
+              </button>
+            </div>
+            <QuestionsList
+              questions={questions}
+              onAnswerChange={handleAnswerChange}
+              onEvaluateAnswer={handleEvaluateAnswer}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </>
+        )}
+
+        {!isGenerating && questions.length === 0 && (
+          <div className="text-center py-12 text-zinc-500 dark:text-zinc-400">
+            <p className="text-lg">
+              Fill the form above and click &quot;Generate Questions&quot; to start practicing
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );
