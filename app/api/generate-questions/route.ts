@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callGeminiJSON } from "@/lib/gemini";
 import { createQuestionGenerationPrompt } from "@/lib/prompts";
-import type { GenerateQuestionsRequest, GenerateQuestionsResponse } from "@/lib/types";
+import type {
+  GenerateQuestionsRequest,
+  GenerateQuestionsResponse,
+} from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,14 +12,26 @@ export async function POST(request: NextRequest) {
     const body: GenerateQuestionsRequest = await request.json();
 
     // Validate required fields
-    if (!body.subject || !body.topic || !body.questionType || !body.difficulty || !body.numQuestions) {
+    if (
+      !body.subject ||
+      !body.topic ||
+      !body.questionType ||
+      !body.difficulty ||
+      body.numQuestions == null
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Validate numQuestions range
+    // Validate numQuestions type and range
+    if (typeof body.numQuestions !== "number") {
+      return NextResponse.json(
+        { error: "numQuestions must be a number" },
+        { status: 400 }
+      );
+    }
     if (body.numQuestions < 1 || body.numQuestions > 20) {
       return NextResponse.json(
         { error: "Number of questions must be between 1 and 20" },
@@ -47,7 +62,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in generate-questions API:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to generate questions" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to generate questions",
+      },
       { status: 500 }
     );
   }

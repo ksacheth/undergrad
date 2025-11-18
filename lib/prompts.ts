@@ -1,9 +1,23 @@
 import type { GenerateQuestionsRequest, EvaluateAnswerRequest } from "./types";
 
 /**
+ * Sanitize user input to prevent prompt injection
+ * Removes quotes, newlines, and control characters
+ */
+function sanitize(input: string | null | undefined): string {
+  if (input == null) return "";
+  return input
+    .replace(/["'\n\r\t\v\f\0]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
  * Generate prompt for creating exam questions
  */
-export function createQuestionGenerationPrompt(config: GenerateQuestionsRequest): string {
+export function createQuestionGenerationPrompt(
+  config: GenerateQuestionsRequest
+): string {
   const {
     subject,
     topic,
@@ -15,21 +29,34 @@ export function createQuestionGenerationPrompt(config: GenerateQuestionsRequest)
     styleSummary,
   } = config;
 
+  // Sanitize user inputs to prevent prompt injection
+  const safeSubject = sanitize(subject);
+  const safeTopic = sanitize(topic);
+  const safeExamStyle = sanitize(examStyle);
+  const safeMarksPattern = sanitize(marksPattern);
+  const safeStyleSummary = styleSummary
+    ? sanitize(JSON.stringify(styleSummary))
+    : null;
+
   return `You are an exam setter for UNDERGRADUATE courses.
 
-Generate ${numQuestions} new exam questions for the subject "${subject}" and topic "${topic}".
+Generate ${numQuestions} new exam questions for the subject "${safeSubject}" and topic "${safeTopic}".
 
 Question type: ${questionType}.
 
 Difficulty: ${difficulty} at UNDERGRAD level (not school, not research).
 
-Exam style: ${examStyle || "generic undergrad exam"}.
+Exam style: ${safeExamStyle || "generic undergrad exam"}.
 
-${marksPattern ? `Marks pattern (if provided): ${marksPattern}.` : ""}
+${safeMarksPattern ? `Marks pattern (if provided): ${safeMarksPattern}.` : ""}
 
-${styleSummary ? `If a style summary is provided, mimic its phrasing without copying any actual questions:
+${
+  safeStyleSummary
+    ? `If a style summary is provided, mimic its phrasing without copying any actual questions:
 
-Style summary: ${JSON.stringify(styleSummary)}.` : ""}
+Style summary: ${safeStyleSummary}.`
+    : ""
+}
 
 Return ONLY valid JSON in the following format and nothing else:
 
@@ -53,26 +80,27 @@ IMPORTANT:
 /**
  * Generate prompt for evaluating student answers
  */
-export function createAnswerEvaluationPrompt(request: EvaluateAnswerRequest): string {
-  const {
-    subject,
-    questionText,
-    studentAnswer,
-    difficulty,
-    marks,
-  } = request;
+export function createAnswerEvaluationPrompt(
+  request: EvaluateAnswerRequest
+): string {
+  const { subject, questionText, studentAnswer, difficulty, marks } = request;
+
+  // Sanitize user inputs to prevent prompt injection
+  const safeSubject = sanitize(subject);
+  const safeQuestionText = sanitize(questionText);
+  const safeStudentAnswer = sanitize(studentAnswer);
 
   const maxScore = marks || 10;
 
-  return `You are an experienced examiner for UNDERGRADUATE exams in ${subject}.
+  return `You are an experienced examiner for UNDERGRADUATE exams in ${safeSubject}.
 
 Evaluate the student's answer to the following question.
 
 Question:
-"${questionText}"
+"${safeQuestionText}"
 
 Student answer:
-"${studentAnswer}"
+"${safeStudentAnswer}"
 
 Assume difficulty level: ${difficulty} (undergrad).
 

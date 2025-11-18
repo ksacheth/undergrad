@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --text-color: #374151;
 }
 
 @theme inline {
@@ -14,6 +15,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --text-color: #e5e7eb;
   }
 }
 
@@ -27,17 +29,23 @@ body {
 .markdown-preview {
   font-size: 0.875rem;
   line-height: 1.6;
-  color: #374151;
+  color: var(--text-color);
 }
 
 .markdown-preview p {
   margin: 0 0 0.75rem;
+  color: var(--text-color);
 }
 
 .markdown-preview ol,
 .markdown-preview ul {
   margin: 0 0 0.75rem 1.25rem;
   padding-left: 1rem;
+  color: var(--text-color);
+}
+
+.markdown-preview li {
+  color: var(--text-color);
 }
 
 .markdown-preview li + li {
@@ -46,8 +54,10 @@ body {
 
 .markdown-preview strong {
   font-weight: 600;
+  color: var(--text-color);
 }
 
 .markdown-preview em {
   font-style: italic;
+  color: var(--text-color);
 }
