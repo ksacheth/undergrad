@@ -485,7 +485,14 @@ export default function Home() {
                           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
                             {question.evaluation.strengths.map(
                               (strength, i) => (
-                                <li key={i}>{strength}</li>
+                                <li key={i} className="markdown-preview">
+                                  <ReactMarkdown
+                                    remarkPlugins={[remarkMath]}
+                                    rehypePlugins={[rehypeKatex]}
+                                  >
+                                    {strength}
+                                  </ReactMarkdown>
+                                </li>
                               )
                             )}
                           </ul>
@@ -499,7 +506,14 @@ export default function Home() {
                           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
                             {question.evaluation.weaknesses.map(
                               (weakness, i) => (
-                                <li key={i}>{weakness}</li>
+                                <li key={i} className="markdown-preview">
+                                  <ReactMarkdown
+                                    remarkPlugins={[remarkMath]}
+                                    rehypePlugins={[rehypeKatex]}
+                                  >
+                                    {weakness}
+                                  </ReactMarkdown>
+                                </li>
                               )
                             )}
                           </ul>
@@ -543,8 +557,15 @@ export default function Home() {
                           <h4 className="font-semibold text-gray-800 mb-2">
                             Your Answer
                           </h4>
-                          <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap">
-                            {question.studentAnswer}
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="markdown-preview">
+                              <ReactMarkdown
+                                remarkPlugins={[remarkMath]}
+                                rehypePlugins={[rehypeKatex]}
+                              >
+                                {question.studentAnswer}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         </div>
 
