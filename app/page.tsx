@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import type {
   ConfigFormData,
   QuestionState,
@@ -29,7 +30,10 @@ export default function Home() {
   const [styleSummary, setStyleSummary] = useState<StyleSummary | undefined>();
 
   // Handle configuration changes
-  const handleConfigChange = (field: keyof ConfigFormData, value: string | number) => {
+  const handleConfigChange = (
+    field: keyof ConfigFormData,
+    value: string | number
+  ) => {
     setConfig((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -89,7 +93,9 @@ export default function Home() {
 
       setQuestions(questionStates);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate questions");
+      setError(
+        err instanceof Error ? err.message : "Failed to generate questions"
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -138,7 +144,9 @@ export default function Home() {
         )
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to evaluate answer");
+      setError(
+        err instanceof Error ? err.message : "Failed to evaluate answer"
+      );
       setQuestions((prev) =>
         prev.map((q, i) => (i === index ? { ...q, isEvaluating: false } : q))
       );
@@ -147,7 +155,9 @@ export default function Home() {
 
   // Validate all answers
   const handleValidateAll = async () => {
-    const unansweredQuestions = questions.filter((q) => !q.studentAnswer.trim());
+    const unansweredQuestions = questions.filter(
+      (q) => !q.studentAnswer.trim()
+    );
     if (unansweredQuestions.length > 0) {
       setError("Please answer all questions before validating");
       return;
@@ -236,7 +246,9 @@ export default function Home() {
               </label>
               <select
                 value={config.difficulty}
-                onChange={(e) => handleConfigChange("difficulty", e.target.value)}
+                onChange={(e) =>
+                  handleConfigChange("difficulty", e.target.value)
+                }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="easy">Easy</option>
@@ -269,7 +281,9 @@ export default function Home() {
               </label>
               <select
                 value={config.examStyle}
-                onChange={(e) => handleConfigChange("examStyle", e.target.value)}
+                onChange={(e) =>
+                  handleConfigChange("examStyle", e.target.value)
+                }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Generic">Generic</option>
@@ -383,7 +397,9 @@ export default function Home() {
                     </label>
                     <textarea
                       value={question.studentAnswer}
-                      onChange={(e) => handleAnswerChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleAnswerChange(index, e.target.value)
+                      }
                       disabled={question.isEvaluating}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[150px]"
                       placeholder="Type your answer here..."
@@ -439,9 +455,11 @@ export default function Home() {
                             <span>✓</span> What you did well
                           </h4>
                           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                            {question.evaluation.strengths.map((strength, i) => (
-                              <li key={i}>{strength}</li>
-                            ))}
+                            {question.evaluation.strengths.map(
+                              (strength, i) => (
+                                <li key={i}>{strength}</li>
+                              )
+                            )}
                           </ul>
                         </div>
 
@@ -491,7 +509,7 @@ export default function Home() {
                       </div>
 
                       {/* Side-by-side Comparison */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-6">
                         {/* Student Answer */}
                         <div>
                           <h4 className="font-semibold text-gray-800 mb-2">
@@ -507,8 +525,12 @@ export default function Home() {
                           <h4 className="font-semibold text-gray-800 mb-2">
                             Ideal Answer
                           </h4>
-                          <div className="bg-blue-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap">
-                            {question.evaluation.idealAnswer}
+                          <div className="bg-blue-50 p-4 rounded-lg">
+                            <div className="markdown-preview">
+                              <ReactMarkdown>
+                                {question.evaluation.idealAnswer}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         </div>
                       </div>
