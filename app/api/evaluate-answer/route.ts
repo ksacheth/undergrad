@@ -38,7 +38,10 @@ export async function POST(request: NextRequest) {
     const prompt = createAnswerEvaluationPrompt(body);
 
     // Call Gemini API
-    const response = await callGeminiJSON<EvaluateAnswerResponse>(prompt);
+    const response = await callGeminiJSON<EvaluateAnswerResponse>(
+      prompt,
+      body.model
+    );
 
     // Validate response - check all required fields
     if (typeof response.score !== "number") {

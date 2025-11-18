@@ -2,8 +2,17 @@
 
 export type QuestionType = "subjective" | "numerical" | "mixed";
 export type Difficulty = "easy" | "medium" | "hard";
+export type GeminiModel =
+  | "gemini-2.5-pro"
+  | "gemini-2.5-flash"
+  | "gemini-2.5-flash-lite";
 export type ConceptStatus = "covered" | "partial" | "missing" | "wrong";
-export type Verdict = "Fully correct" | "Mostly correct" | "Partially correct" | "Incorrect" | "Off-topic";
+export type Verdict =
+  | "Fully correct"
+  | "Mostly correct"
+  | "Partially correct"
+  | "Incorrect"
+  | "Off-topic";
 
 export interface Question {
   id: string;
@@ -20,6 +29,7 @@ export interface GenerateQuestionsRequest {
   examStyle?: string;
   marksPattern?: string;
   styleSummary?: StyleSummary;
+  model: GeminiModel;
 }
 
 export interface GenerateQuestionsResponse {
@@ -34,6 +44,7 @@ export interface EvaluateAnswerRequest {
   studentAnswer: string;
   difficulty: Difficulty;
   marks?: number;
+  model: GeminiModel;
 }
 
 export interface ConceptComparison {
@@ -76,4 +87,5 @@ export interface ConfigFormData {
   numQuestions: number;
   examStyle: string;
   marksPattern: string;
+  model: GeminiModel;
 }

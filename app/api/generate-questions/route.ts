@@ -51,7 +51,10 @@ export async function POST(request: NextRequest) {
     const prompt = createQuestionGenerationPrompt(body);
 
     // Call Gemini API
-    const response = await callGeminiJSON<GenerateQuestionsResponse>(prompt);
+    const response = await callGeminiJSON<GenerateQuestionsResponse>(
+      prompt,
+      body.model
+    );
 
     // Validate response
     if (!response.questions || !Array.isArray(response.questions)) {

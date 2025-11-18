@@ -20,6 +20,7 @@ export default function Home() {
     numQuestions: 5,
     examStyle: "Generic",
     marksPattern: "",
+    model: "gemini-2.5-flash",
   });
 
   // Questions and session state
@@ -127,6 +128,7 @@ export default function Home() {
           studentAnswer: question.studentAnswer,
           difficulty: config.difficulty,
           marks: question.marks,
+          model: config.model,
         }),
       });
 
@@ -306,6 +308,24 @@ export default function Home() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="e.g., 2×5 marks, 3×10 marks"
               />
+            </div>
+
+            {/* Model Selection */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                AI Model *
+              </label>
+              <select
+                value={config.model}
+                onChange={(e) => handleConfigChange("model", e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-2.5-flash-lite">
+                  Gemini 2.5 Flash Lite
+                </option>
+              </select>
             </div>
 
             {/* Upload Previous Papers */}
