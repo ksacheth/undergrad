@@ -15,7 +15,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
  */
 export async function callGeminiJSON<T = unknown>(prompt: string): Promise<T> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],

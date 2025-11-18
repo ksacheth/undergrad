@@ -18,7 +18,7 @@ A responsive web application that helps undergraduate students practice exam-sty
 - **Framework**: Next.js 16 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **AI**: Google Gemini API (gemini-1.5-pro)
+- **AI**: Google Gemini API (gemini-2.5-flash-lite)
 - **Runtime**: Node.js 20+
 - **Package Manager**: npm (or bun)
 
@@ -119,8 +119,7 @@ All AI prompts are centralized in `lib/prompts.ts`. You can modify:
 
 In `lib/gemini.ts`, you can change the model:
 ```typescript
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-// Change to: "gemini-1.5-flash" for faster, cheaper responses
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 ```
 
 ### Adding a Database
