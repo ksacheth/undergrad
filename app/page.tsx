@@ -435,17 +435,17 @@ export default function Home() {
                   </div>
 
                   {/* Validate Button */}
-                  {!question.evaluation && (
-                    <button
-                      onClick={() => handleValidateAnswer(index)}
-                      disabled={question.isEvaluating}
-                      className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {question.isEvaluating
-                        ? "Validating..."
-                        : "Validate this answer"}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleValidateAnswer(index)}
+                    disabled={question.isEvaluating}
+                    className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {question.isEvaluating
+                      ? "Validating..."
+                      : question.evaluation
+                      ? "Re-validate this answer"
+                      : "Validate this answer"}
+                  </button>
 
                   {/* Evaluation Results */}
                   {question.evaluation && (
