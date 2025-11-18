@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import type {
   ConfigFormData,
   QuestionState,
@@ -269,9 +271,10 @@ export default function Home() {
                 min="1"
                 max="20"
                 value={config.numQuestions}
-                onChange={(e) =>
-                  handleConfigChange("numQuestions", parseInt(e.target.value))
-                }
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  handleConfigChange("numQuestions", isNaN(value) ? 1 : value);
+                }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -394,9 +397,14 @@ export default function Home() {
                       <h3 className="text-lg font-semibold text-gray-800 mb-2">
                         Question {index + 1}
                       </h3>
-                      <p className="text-gray-700 whitespace-pre-wrap">
-                        {question.text}
-                      </p>
+                      <div className="text-gray-700 markdown-preview">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkMath]}
+                          rehypePlugins={[rehypeKatex]}
+                        >
+                          {question.text}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                     <div className="ml-4 flex flex-col gap-2">
                       {question.marks && (
@@ -547,7 +555,10 @@ export default function Home() {
                           </h4>
                           <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="markdown-preview">
-                              <ReactMarkdown>
+                              <ReactMarkdown
+                                remarkPlugins={[remarkMath]}
+                                rehypePlugins={[rehypeKatex]}
+                              >
                                 {question.evaluation.idealAnswer}
                               </ReactMarkdown>
                             </div>
