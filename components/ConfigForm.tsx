@@ -66,11 +66,37 @@ export default function ConfigForm({
         throw new Error("Failed to upload papers");
       }
 
-      const data = (await response.json()) as { styleSummary: StyleSummary };
-      setStyleSummary(data.styleSummary);
+      const data = await response.json();
+
+      // Validate response shape before using it
+      if (
+        !data ||
+        typeof data !== "object" ||
+        !data.styleSummary ||
+        typeof data.styleSummary !== "object"
+      ) {
+        throw new Error(
+          "Invalid response format: missing or invalid styleSummary"
+        );
+      }
+
+      // Optionally validate expected fields
+      const summary = data.styleSummary;
+      if (
+        (summary.commonVerbs !== undefined &&
+          !Array.isArray(summary.commonVerbs)) ||
+        (summary.averageMarksPerQuestion !== undefined &&
+          typeof summary.averageMarksPerQuestion !== "number") ||
+        (summary.typicalDifficulty !== undefined &&
+          typeof summary.typicalDifficulty !== "string")
+      ) {
+        throw new Error("Invalid styleSummary structure");
+      }
+
+      setStyleSummary(data.styleSummary as StyleSummary);
     } catch (error) {
       console.error("Error uploading papers:", error);
-      alert("Failed to upload papers");
+      alert(error instanceof Error ? error.message : "Failed to upload papers");
     } finally {
       setIsUploadingPapers(false);
     }
