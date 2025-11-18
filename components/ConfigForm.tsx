@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 
 interface StyleSummary {
   commonVerbs?: string[];
@@ -45,9 +45,7 @@ export default function ConfigForm({
   const [styleSummary, setStyleSummary] = useState<StyleSummary | null>(null);
   const [isUploadingPapers, setIsUploadingPapers] = useState(false);
 
-  const handleFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -68,7 +66,7 @@ export default function ConfigForm({
         throw new Error("Failed to upload papers");
       }
 
-      const data = await response.json() as { styleSummary: StyleSummary };
+      const data = (await response.json()) as { styleSummary: StyleSummary };
       setStyleSummary(data.styleSummary);
     } catch (error) {
       console.error("Error uploading papers:", error);
@@ -86,12 +84,15 @@ export default function ConfigForm({
       return;
     }
 
+    // Clamp numQuestions to ensure 1-20 range server-side
+    const clampedNumQuestions = Math.min(Math.max(numQuestions, 1), 20);
+
     const config: ConfigData = {
       subject,
       topic,
       questionType,
       difficulty,
-      numQuestions,
+      numQuestions: clampedNumQuestions,
       examStyle: examStyle || undefined,
       marksPattern: marksPattern || undefined,
       styleSummary: styleSummary || undefined,
@@ -187,7 +188,10 @@ export default function ConfigForm({
               min="1"
               max="20"
               value={numQuestions}
-              onChange={(e) => setNumQuestions(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 1;
+                setNumQuestions(Math.min(Math.max(value, 1), 20));
+              }}
               className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
               disabled={isLoading}
             />
@@ -246,7 +250,8 @@ export default function ConfigForm({
           </div>
           {styleSummary && (
             <p className="text-sm text-green-600 dark:text-green-400 mt-2">
-              ✓ Style summary extracted from {styleSummary.questionCount || "?"} questions
+              ✓ Style summary extracted from {styleSummary.questionCount || "?"}{" "}
+              questions
             </p>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
   try {
@@ -6,10 +7,7 @@ export async function POST(request: NextRequest) {
     const files = formData.getAll("files");
 
     if (!files || files.length === 0) {
-      return NextResponse.json(
-        { error: "No files provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
     // For MVP, we're stubbing the PDF extraction
@@ -32,13 +30,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ styleSummary });
   } catch (error) {
-    console.error("Error uploading papers:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to upload papers",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+    return handleApiError(
+      error,
+      "Error uploading papers",
+      "Failed to upload papers"
     );
   }
 }

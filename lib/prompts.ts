@@ -35,7 +35,13 @@ Exam style: ${examStyle || "generic undergrad exam"}.
 
 ${marksPattern ? `Marks pattern: ${marksPattern}.` : ""}
 
-${styleSummary ? `Style summary to mimic (without copying actual questions): ${JSON.stringify(styleSummary)}.` : "No previous exam papers provided."}
+${
+  styleSummary
+    ? `Style summary to mimic (without copying actual questions): ${JSON.stringify(
+        styleSummary
+      )}.`
+    : "No previous exam papers provided."
+}
 
 For each question, assign appropriate marks (typically 5, 10, or 15 marks depending on difficulty and exam style).
 
@@ -64,9 +70,7 @@ export interface EvaluateAnswerInput {
   marks?: number;
 }
 
-export function createEvaluateAnswerPrompt(
-  input: EvaluateAnswerInput
-): string {
+export function createEvaluateAnswerPrompt(input: EvaluateAnswerInput): string {
   const {
     subject,
     topic,
@@ -76,7 +80,7 @@ export function createEvaluateAnswerPrompt(
     marks: maxMarks,
   } = input;
 
-  const actualMaxMarks = maxMarks || 10;
+  const actualMaxMarks = maxMarks ?? 10;
 
   return `You are an experienced examiner for UNDERGRADUATE exams in ${subject} (topic: ${topic}).
 

@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callGeminiJSON } from "@/lib/gemini";
 import { createGenerateQuestionsPrompt } from "@/lib/prompts";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
+  // Parse JSON with specific error handling for malformed input
+  let body;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Invalid JSON in request body",
+      },
+      { status: 400 }
+    );
+  }
 
+  try {
     const {
       subject,
       topic,
@@ -21,7 +33,8 @@ export async function POST(request: NextRequest) {
     if (!subject || !topic || !questionType || !difficulty || !numQuestions) {
       return NextResponse.json(
         {
-          error: "Missing required fields: subject, topic, questionType, difficulty, numQuestions",
+          error:
+            "Missing required fields: subject, topic, questionType, difficulty, numQuestions",
         },
         { status: 400 }
       );
@@ -44,13 +57,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error generating questions:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to generate questions",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+    return handleApiError(
+      error,
+      "Error generating questions",
+      "Failed to generate questions"
     );
   }
 }
