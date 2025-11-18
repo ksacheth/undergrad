@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 
-const DEFAULT_MODEL = "gemini-1.5-pro";
+const DEFAULT_MODEL = "gemini-2.5-flash-lite";
 
 type GenerateArgs = {
   prompt: string;
@@ -84,7 +84,7 @@ async function callWithRest(args: GenerateArgs) {
   const apiKey = ensureApiKey();
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${
-      args.model ?? `${DEFAULT_MODEL}-latest`
+      args.model ?? `${DEFAULT_MODEL}`
     }:generateContent?key=${apiKey}`,
     {
       method: "POST",
