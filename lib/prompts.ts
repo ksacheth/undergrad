@@ -116,16 +116,19 @@ Your tasks:
 Respond ONLY with JSON in this format:
 
 {
-  "score": number,
+  "score": 7,
   "maxScore": ${maxScore},
-  "verdict": "Fully correct" | "Mostly correct" | "Partially correct" | "Incorrect" | "Off-topic",
-  "strengths": ["strength 1", "strength 2"],
-  "weaknesses": ["weakness 1", "weakness 2"],
-  "idealAnswer": "complete ideal answer here",
+  "verdict": "Partially correct",
+  "strengths": ["Demonstrated understanding of core concept", "Provided relevant examples"],
+  "weaknesses": ["Missing key details about implementation", "Explanation lacks depth"],
+  "idealAnswer": "A complete and comprehensive answer would include...",
   "conceptComparison": [
-    { "concept": "concept name", "status": "covered" | "partial" | "missing" | "wrong" }
+    { "concept": "Basic principles", "status": "covered" },
+    { "concept": "Advanced application", "status": "partial" }
   ]
 }
+
+Constraints: The "score" field must be a number between 0 and ${maxScore}. The "verdict" field must be one of: "Fully correct", "Mostly correct", "Partially correct", "Incorrect", or "Off-topic". Each "status" in conceptComparison must be one of: "covered", "partial", "missing", or "wrong".
 
 IMPORTANT:
 - Be fair but rigorous in evaluation
